@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Memory Management Simulator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-mark">MM</div>
+      <div class="brand-copy"><strong>MemoryLab</strong><span>OPERATING SYSTEMS</span></div>
+      <div class="side-label">WORKSPACE</div>
+      <a class="nav-item active" href="#overview"><span>▦</span> Dashboard</a>
+      <a class="nav-item" href="#allocation"><span>▤</span> Memory allocation</a>
+      <a class="nav-item" href="#history"><span>◷</span> Activity history</a>
+      <div class="sidebar-note">
+        <div class="note-icon">i</div>
+        <strong>Learning mode</strong>
+        <p>Explore how contiguous memory is allocated and released by different strategies.</p>
+      </div>
+      <div class="sidebar-footer">MCA · SEMESTER 1<br><span>Operating Systems Mini Project</span></div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div><div class="eyebrow">OPERATING SYSTEMS / SIMULATOR</div><h1>Memory Management</h1><p class="subtitle">Visualize and experiment with contiguous memory allocation.</p></div>
+        <div class="status-pill"><span></span> Simulator ready</div>
+      </header>
+
+      <section id="overview" class="stats-grid">
+        <article class="stat-card"><div class="stat-top"><span>Total memory</span><span class="stat-icon purple">▣</span></div><strong id="totalStat">1,024 <small>KB</small></strong><div class="stat-foot">Configured capacity</div></article>
+        <article class="stat-card"><div class="stat-top"><span>Allocated memory</span><span class="stat-icon blue">▰</span></div><strong id="allocatedStat">0 <small>KB</small></strong><div class="stat-foot">Currently in use</div></article>
+        <article class="stat-card"><div class="stat-top"><span>Free memory</span><span class="stat-icon green">▱</span></div><strong id="freeStat">1,024 <small>KB</small></strong><div class="stat-foot">Available capacity</div></article>
+        <article class="stat-card"><div class="stat-top"><span>Utilization</span><span class="stat-icon orange">◔</span></div><strong id="utilStat">0<small>%</small></strong><div class="progress-track"><div id="utilBar" class="progress-fill"></div></div></article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel memory-panel">
+          <div class="panel-heading"><div><div class="eyebrow">LIVE VISUALIZATION</div><h2>Memory map</h2><p>Each segment represents a contiguous block of memory.</p></div><span class="live-label"><i></i> LIVE</span></div>
+          <div class="memory-scale"><span>LOW ADDRESS · 0 KB</span><span id="highAddress">HIGH ADDRESS · 1,024 KB</span></div>
+          <div id="memoryMap" class="memory-map"><div class="memory-block free-block" style="height:100%"><strong>FREE</strong><span>1,024 KB</span></div></div>
+          <div class="legend"><span><i class="legend-free"></i> Free memory</span><span><i class="legend-used"></i> Allocated memory</span></div>
+          <div class="memory-summary"><div><span>Free blocks</span><strong id="fragmentCount">1</strong></div><div><span>Largest free block</span><strong id="largestFree">1,024 KB</strong></div><div><span>External fragmentation</span><strong id="externalFrag">0%</strong></div></div>
+        </article>
+
+        <article id="allocation" class="panel controls-panel">
+          <div class="eyebrow">SIMULATION CONTROLS</div><h2>Manage memory</h2><p class="panel-description">Configure memory and manage process allocation.</p>
+          <form id="configForm" class="form-section">
+            <label for="totalMemory">Total memory size <span>KB</span></label>
+            <div class="input-action"><input id="totalMemory" type="number" min="1" max="1000000" value="1024" required><button class="button button-light" type="submit">Apply</button></div>
+          </form>
+          <div class="form-divider"></div>
+          <form id="allocateForm" class="form-section">
+            <label for="processName">Process name</label><input id="processName" type="text" placeholder="e.g. P1" maxlength="20" required>
+            <label for="processSize">Memory required <span>KB</span></label><input id="processSize" type="number" min="1" placeholder="e.g. 200" required>
+            <label for="strategy">Allocation strategy</label>
+            <select id="strategy"><option value="first">First Fit</option><option value="best">Best Fit</option><option value="worst">Worst Fit</option></select>
+            <button class="button button-primary full-button" type="submit">＋ Allocate process</button>
+          </form>
+          <div class="form-divider"></div>
+          <form id="deallocateForm" class="form-section">
+            <label for="releaseName">Release process</label>
+            <div class="input-action"><select id="releaseName" aria-label="Select process"><option value="">No allocated processes</option></select><button class="button button-danger" type="submit">Release</button></div>
+          </form>
+          <button id="resetButton" class="reset-button">↻ Reset simulation</button>
+        </article>
+      </section>
+
+      <section class="bottom-grid">
+        <article class="panel process-panel">
+          <div class="panel-heading"><div><div class="eyebrow">MEMORY DETAILS</div><h2>Allocated processes</h2></div><span id="processCount" class="count-badge">0 processes</span></div>
+          <div class="table-wrap"><table><thead><tr><th>PROCESS</th><th>START ADDRESS</th><th>SIZE</th><th>STATUS</th></tr></thead><tbody id="processTable"><tr><td colspan="4" class="empty-state">No processes allocated yet. Add a process to begin.</td></tr></tbody></table></div>
+        </article>
+        <article id="history" class="panel history-panel">
+          <div class="eyebrow">RECENT ACTIONS</div><h2>Activity history</h2><div id="historyList" class="history-list"><p class="empty-state">Your simulation actions will appear here.</p></div>
+        </article>
+      </section>
+      <footer>MemoryLab <span>·</span> Educational simulation for Operating Systems</footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
