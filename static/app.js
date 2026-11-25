@@ -29,13 +29,14 @@ function render(state) {
   $("largestFree").textContent = `${number(state.largest_free_block)} KB`;
   $("externalFrag").textContent = `${state.external_fragmentation}%`;
 
+  $("layout").value = state.layout;
+  $("totalMemory").value = state.total_memory;
   const map = $("memoryMap");
   map.innerHTML = "";
   state.blocks.forEach(block => {
     const item = document.createElement("div");
     item.className = "memory-block " + (block.process ? "used-block" : "free-block");
-    item.style.height = `${block.size / state.total_memory * 100}%`;
-    item.style.minHeight = state.blocks.length > 1 ? "24px" : "100%";
+    item.style.flex = `0 0 ${Math.max(44, block.size / state.total_memory * 480)}px`;
     const title = document.createElement("strong");
     title.textContent = block.process || "FREE";
     const detail = document.createElement("span");
@@ -108,7 +109,7 @@ async function refresh() {
 $("configForm").addEventListener("submit", async e => {
   e.preventDefault();
   try {
-    const state = await api("/api/configure", {total_memory: $("totalMemory").value});
+    const state = await api("/api/configure", {total_memory: $("totalMemory").value, layout: $("layout").value});
     render(state); await refresh(); showToast("Memory configuration updated.");
   } catch (err) { showToast(err.message, true); }
 });
@@ -134,7 +135,7 @@ $("deallocateForm").addEventListener("submit", async e => {
 });
 $("resetButton").addEventListener("click", async () => {
   try {
-    const result = await api("/api/reset", {total_memory: $("totalMemory").value || 1024});
+    const result = await api("/api/reset", {total_memory: $("totalMemory").value || 1024, layout: $("layout").value});
     render(result); await refresh(); showToast("Simulation reset.");
   } catch (err) { showToast(err.message, true); }
 });

@@ -35,7 +35,7 @@ def configure():
     data = request.get_json(force=True)
     try:
         size = int(data.get("total_memory", 1024))
-        manager.configure(size)
+        manager.configure(size, data.get("layout", manager.layout))
         save_history("Configure", f"Total memory set to {size} KB")
         return jsonify(manager.snapshot())
     except (ValueError, TypeError) as exc:
@@ -62,18 +62,18 @@ def deallocate():
         message = manager.deallocate(name)
         save_history("Deallocate", message)
         return jsonify({"message": message, **manager.snapshot()})
-    except ValueError as exc:
+    except (ValueError, TypeError) as exc:
         return jsonify({"error": str(exc)}), 400
 
 @app.post("/api/reset")
 def reset():
     data = request.get_json(silent=True) or {}
-    size = int(data.get("total_memory", manager.total_memory))
     try:
-        manager.configure(size)
+        size = int(data.get("total_memory", manager.total_memory))
+        manager.configure(size, data.get("layout", manager.layout))
         save_history("Reset", f"Simulation reset to {size} KB")
         return jsonify({"message": "Simulation reset.", **manager.snapshot()})
-    except ValueError as exc:
+    except (ValueError, TypeError) as exc:
         return jsonify({"error": str(exc)}), 400
 
 @app.get("/api/history")

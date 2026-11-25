@@ -2,14 +2,29 @@ class MemoryManager:
     """Contiguous memory allocation using First Fit, Best Fit and Worst Fit."""
 
     def __init__(self, total_memory=1024):
-        self.configure(total_memory)
+        self.configure(total_memory, "demo" if total_memory >= 12 else "empty")
 
-    def configure(self, total_memory):
+    def configure(self, total_memory, layout="empty"):
         total_memory = int(total_memory)
         if total_memory < 1 or total_memory > 1000000:
             raise ValueError("Total memory must be between 1 and 1,000,000 KB.")
+        if layout not in ("empty", "demo"):
+            raise ValueError("Choose a valid memory layout.")
+        if layout == "demo" and total_memory < 12:
+            raise ValueError("Demo layout requires at least 12 KB.")
         self.total_memory = total_memory
+        self.layout = layout
         self.blocks = [{"start": 0, "size": total_memory, "process": None}]
+        if layout == "demo":
+            weights = [12, 4, 20, 5, 8, 4, 16, 5, 10, 4, 8, 4]
+            sizes = [1 + (total_memory - 12) * w // sum(weights) for w in weights]
+            sizes[0] += total_memory - sum(sizes)
+            self.blocks = []
+            start = 0
+            for i, size in enumerate(sizes):
+                self.blocks.append({"start": start, "size": size,
+                                    "process": None if i % 2 == 0 else f"Demo{i // 2 + 1}"})
+                start += size
 
     def allocate(self, name, size, strategy="first"):
         name = str(name).strip()
@@ -86,6 +101,7 @@ class MemoryManager:
         free = sum(free_blocks)
         return {
             "total_memory": self.total_memory,
+            "layout": self.layout,
             "allocated_memory": allocated,
             "free_memory": free,
             "utilization": round((allocated / self.total_memory) * 100, 1),
